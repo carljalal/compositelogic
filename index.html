@@ -1,0 +1,138 @@
+<html>
+<head>
+<style>
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: medium;
+}
+</style>
+</head>
+<body>
+<script>
+
+let trainingStats = {
+    numCorrect: 0,
+    numIncorrect: 0
+};
+
+let currentQuestion = {
+    question:"",
+    answer:""
+};
+
+let logicSymbols = [
+    {name: " and "  , evaluate: function (a,b){if(a && b) {return true;} else {return false;}}},
+    {name: " or "   , evaluate: function (a,b){if(a || b) {return true;} else {return false;}}},
+    {name: " xor "  , evaluate: function (a,b){if((!a && b) || (a && !b)) {return true;} else {return false;}}},
+    {name: " nor "  , evaluate: function (a,b){if(!a && !b) {return true;} else {return false;}}},
+    {name: " imply ", evaluate: function (a,b){if(a && !b) {return false;} else {return true;}}},
+    {name: " xnor " , evaluate: function (a,b){if((a && b) || (!a && !b)) {return true;} else {return false;}}},
+    {name: " nand " , evaluate: function (a,b){if(a && b) {return false;} else {return true;}}},
+    {name: "not "   , evaluate: function (a){if(!a) {return true;} else {return false;}}},
+];
+
+let trainingTitle = "logic training";
+let questionDiv = prepareDiv();
+let answerDiv = prepareInput();
+let questionButton = prepareDiv();
+let feedbackDiv = prepareDiv();
+styleButton(questionButton);
+styleQuestionButton(questionButton);
+
+function prepareDiv(){
+    let o = document.createElement("div")
+    document.body.append(o);
+    return o;
+}
+
+function prepareInput(){
+    let o = document.createElement("input");
+    document.body.append(o);
+    return o;
+}
+
+function styleButton(o){
+    o.style.width = 80;
+    o.style.height = 20;
+    o.style.border = "2px solid black";
+}
+
+function styleQuestionButton(o){
+    o.innerHTML = "next"
+}
+
+function getAnswer(){
+    return answerDiv.value;
+}
+
+function randBool(){
+    if(Math.random() < 0.5) return true;
+    else return false;
+}
+
+function randItem(o){
+    return o[Math.floor(Math.random()*o.length)];
+}
+
+function solveQuestion(s) {
+
+}
+
+function preparePiece(){
+
+}
+
+function addToQuestion(){
+
+}
+
+function prepareQuestion(){
+    currentQuestion = {};
+    currentQuestion.question = {};
+    
+    do {
+        addToQuestion();
+    } while (randBool())
+
+    currentQuestion.answer = solveQuestion(currentQuestion.answer);
+}
+
+function displayQuestion() {
+    questionDiv.innerHTML = currentQuestion.question;
+}
+
+function clearFeedback(){
+    feedbackDiv.innerHTML = "";
+}
+
+function feedbackCorrect(){
+    feedbackDiv.innerHTML += "yes it is correct!";
+}
+
+function feedbackIncorrect(){
+    feedbackDiv.innerHTML += "correct answer was " + currentQuestion.answer;
+}
+
+function handleAnswer() {
+    clearFeedback();
+    if(currentQuestion.answer == getAnswer()) {
+        feedbackCorrect();
+    }
+    else{
+        feedbackIncorrect();
+    }
+}
+
+questionButton.onclick = () => {
+    handleAnswer();
+    prepareQuestion();
+    displayQuestion();
+}
+
+
+
+
+
+</script>
+</body>
+</html>
