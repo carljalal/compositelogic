@@ -16,9 +16,13 @@ let trainingStats = {
 };
 
 let currentQuestion = {
-    question:"",
-    answer:""
+    question:null,
+    answer:null
 };
+
+let currentAnswer = {
+    answer:null
+}
 
 let logicSymbols = [
     {name: " and "  , evaluate: function (a,b){if(a && b) {return true;} else {return false;}}},
@@ -29,25 +33,147 @@ let logicSymbols = [
     {name: " xnor " , evaluate: function (a,b){if((a && b) || (!a && !b)) {return true;} else {return false;}}},
     {name: " nand " , evaluate: function (a,b){if(a && b) {return false;} else {return true;}}},
     {name: "not "   , evaluate: function (a){if(!a) {return true;} else {return false;}}},
+    
 ];
 
-let trainingTitle = "logic training";
-let questionDiv = prepareDiv();
-let answerDiv = prepareInput();
-let questionButton = prepareDiv();
-let feedbackDiv = prepareDiv();
-styleButton(questionButton);
-styleQuestionButton(questionButton);
+let trueFalseSymbols = [
+    {name: "true"   , evaluate: function (){return true;}},
+    {name: "false"  , evaluate: function (){return false;}}
+]
 
-function prepareDiv(){
+class logicNode {
+    constructor(){
+        this.left = null;
+        this.right = null;
+        this.symbol = null;
+        this.truth = null;
+    }
+}
+
+
+function fillLogicTreePiece(o){
+    if(randBool(.2)){
+        o.symbol = randItem(logicSymbols);
+        fillLeaves(o);
+    }
+    else{
+        o.symbol = randItem(trueFalseSymbols);
+    }
+}
+
+function fillLeaves(o){
+    if(o.symbol.name == "true") return;
+    else if(o.symbol.name == "false") return;
+    else if(o.symbol.name == "not "){
+        o.right = new logicNode();
+        fillLogicTreePiece(o.right);
+    }
+    else {
+        o.left = new logicNode();
+        o.right = new logicNode();
+        fillLogicTreePiece(o.left);
+        fillLogicTreePiece(o.right);
+    }
+}
+
+function fillLogicTree(){
+    let iterations = Math.floor(Math.random()*10);
+
+    let tree = new logicNode();
+    tree.symbol = randItem(logicSymbols);
+    
+    fillLeaves(tree);
+    evaluateTree(tree);
+    return tree;
+}
+
+
+
+function evaluateTree(o){
+    let l = null;
+    let r = null;
+    if(o.symbol.name == "true"){
+        o.text = o.symbol.name;
+        o.truth = o.symbol.evaluate();
+    }
+    else if(o.symbol.name == "false"){
+        o.text = o.symbol.name;
+        o.truth = o.symbol.evaluate();
+    }
+    else if(o.symbol.name == "not "){
+        r = evaluateTree(o.right);
+        o.truth = o.symbol.evaluate(r);
+        o.text = "(" + o.symbol.name + o.right.text + ")";
+    }
+    else {
+        l = evaluateTree(o.left);
+        r = evaluateTree(o.right);
+        o.truth = o.symbol.evaluate(l,r);
+        o.text = "(" + o.left.text + o.symbol.name + o.right.text + ")";
+    }
+    return o.truth;
+}
+
+let boardParent = prepareDiv();
+boardParent.style.display = "none";
+boardParent.style.border = "2px solid black";
+boardParent.style.padding = "5px";
+
+let trainingTitle = "logic training";
+let questionDiv = prepareDiv(boardParent);
+
+appendBreak(boardParent);
+let answerDiv = prepareInput(boardParent);
+let trueButton = prepareDiv(boardParent);
+let falseButton = prepareDiv(boardParent);
+appendBreak();
+appendBreak();
+let startButton = prepareDiv();
+let feedbackDiv = prepareDiv();
+styleButton(startButton);
+styleButton(trueButton);
+greenColor(trueButton)
+styleButton(falseButton);
+redColor(falseButton);
+styleQuestionButton(startButton);
+styleQuestionDiv(questionDiv);
+
+
+function appendBreak(parent = document.body){
+    parent.append(document.createElement("br"));
+}
+
+function prepareDiv(parent = document.body){
     let o = document.createElement("div")
-    document.body.append(o);
+    parent.append(o);
     return o;
 }
 
-function prepareInput(){
+function styleQuestionDiv(o) {
+    o.style.fontStyle = "italic";
+    o.style.backgroundColor = "pink";
+    o.style.padding = "3px"
+    o.style.fontSize = "20";
+    o.style.display = "inline-block";
+}
+
+function greenColor(o){
+    o.style.backgroundColor = "lime";
+    o.innerHTML = "<b>true</b>";
+    o.style.display = "none";
+}
+
+function redColor(o){
+    o.style.backgroundColor = "red";
+    o.innerHTML = "<b>false</b>";
+    o.style.display = "none";
+}
+
+
+function prepareInput(parent = document.body){
     let o = document.createElement("input");
-    document.body.append(o);
+    parent.append(o);
+    o.style.display = 'none';
     return o;
 }
 
@@ -55,18 +181,23 @@ function styleButton(o){
     o.style.width = 80;
     o.style.height = 20;
     o.style.border = "2px solid black";
+    o.style.padding = "3px";
 }
 
 function styleQuestionButton(o){
-    o.innerHTML = "next"
+    o.innerHTML = "<b>start</b>"
+    o.style.fontSize = "20";
 }
 
 function getAnswer(){
-    return answerDiv.value;
+    if (currentAnswer.answer != null){
+        return currentAnswer.answer.toString();
+    }
+    else return answerDiv.value;
 }
 
-function randBool(){
-    if(Math.random() < 0.5) return true;
+function randBool(rateTrue = 0.5){
+    if(Math.random() < rateTrue) return true;
     else return false;
 }
 
@@ -74,27 +205,13 @@ function randItem(o){
     return o[Math.floor(Math.random()*o.length)];
 }
 
-function solveQuestion(s) {
-
-}
-
-function preparePiece(){
-
-}
-
-function addToQuestion(){
-
-}
 
 function prepareQuestion(){
-    currentQuestion = {};
-    currentQuestion.question = {};
-    
-    do {
-        addToQuestion();
-    } while (randBool())
+    let tree = fillLogicTree();
 
-    currentQuestion.answer = solveQuestion(currentQuestion.answer);
+    currentQuestion = {};
+    currentQuestion.question = tree.text;
+    currentQuestion.answer = tree.truth;
 }
 
 function displayQuestion() {
@@ -105,6 +222,16 @@ function clearFeedback(){
     feedbackDiv.innerHTML = "";
 }
 
+function clearAnswerInput(){
+    if(answerDiv.value == ""){
+        return false;
+    }
+    else{
+        answerDiv.value = "";
+        return true;
+    }
+}
+
 function feedbackCorrect(){
     feedbackDiv.innerHTML += "yes it is correct!";
 }
@@ -113,9 +240,19 @@ function feedbackIncorrect(){
     feedbackDiv.innerHTML += "correct answer was " + currentQuestion.answer;
 }
 
+function feedbackFirstQuestion(){
+    feedbackDiv.innerHTML += "here's your first question!";
+}
+
 function handleAnswer() {
     clearFeedback();
-    if(currentQuestion.answer == getAnswer()) {
+
+    if(currentQuestion.answer == null){
+        feedbackFirstQuestion();
+        return;
+    }
+    
+    if(currentQuestion.answer.toString() == getAnswer()) {
         feedbackCorrect();
     }
     else{
@@ -123,13 +260,39 @@ function handleAnswer() {
     }
 }
 
-questionButton.onclick = () => {
+
+function nextQuestion() {
     handleAnswer();
+    clearAnswerInput();
     prepareQuestion();
     displayQuestion();
 }
 
+startButton.onclick = () => {
+    nextQuestion();
+    startButton.style.display = "none";
+    boardParent.style.display = "inline-block";
+    trueButton.style.display = "inline-block";
+    falseButton.style.display = "inline-block";
+}
 
+answerDiv.addEventListener("keypress", (e)=> {
+    if(e.key == "Enter") {
+        nextQuestion();
+    }
+});
+
+trueButton.addEventListener("click", () => {
+    currentAnswer.answer = true;
+    nextQuestion();
+    currentAnswer.answer = null;
+})
+
+falseButton.addEventListener("click", () => {
+    currentAnswer.answer = false;
+    nextQuestion();
+    currentAnswer.answer = null;
+})
 
 
 
