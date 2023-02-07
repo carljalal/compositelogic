@@ -8,7 +8,7 @@ body {
 </style>
 </head>
 <body>
-    <p>Version 1.1</p>
+
 <script>
 
 let boardParent = null;
@@ -215,12 +215,16 @@ function greenColor(o){
     o.style.backgroundColor = "lime";
     o.innerHTML = "<b>true</b>";
     o.style.display = "none";
+    o.style.userSelect = "none";
+    o.style.padding = "10px"
 }
 
 function redColor(o){
     o.style.backgroundColor = "red";
     o.innerHTML = "<b>false</b>";
     o.style.display = "none";
+    o.style.userSelect = "none";
+    o.style.padding = "10px"
 }
 
 
