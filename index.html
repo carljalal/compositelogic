@@ -8,6 +8,7 @@ body {
 </style>
 </head>
 <body>
+    <p>Version 1.1</p>
 <script>
 
 let boardParent = null;
@@ -47,13 +48,13 @@ let currentAnswer = {
 
 let logicSymbols = [
     {name: " and "  , evaluate: function (a,b){if(a && b) {return true;} else {return false;}}},
-    //{name: " or "   , evaluate: function (a,b){if(a || b) {return true;} else {return false;}}},
-    //{name: " xor "  , evaluate: function (a,b){if((!a && b) || (a && !b)) {return true;} else {return false;}}},
-    //{name: " nor "  , evaluate: function (a,b){if(!a && !b) {return true;} else {return false;}}},
-    //{name: " imply ", evaluate: function (a,b){if(a && !b) {return false;} else {return true;}}},
-    //{name: " xnor " , evaluate: function (a,b){if((a && b) || (!a && !b)) {return true;} else {return false;}}},
-    //{name: " nand " , evaluate: function (a,b){if(a && b) {return false;} else {return true;}}},
-    //{name: "not "   , evaluate: function (a){if(!a) {return true;} else {return false;}}},
+    {name: " or "   , evaluate: function (a,b){if(a || b) {return true;} else {return false;}}},
+    {name: " xor "  , evaluate: function (a,b){if((!a && b) || (a && !b)) {return true;} else {return false;}}},
+    {name: " nor "  , evaluate: function (a,b){if(!a && !b) {return true;} else {return false;}}},
+    {name: " imply ", evaluate: function (a,b){if(a && !b) {return false;} else {return true;}}},
+    {name: " xnor " , evaluate: function (a,b){if((a && b) || (!a && !b)) {return true;} else {return false;}}},
+    {name: " nand " , evaluate: function (a,b){if(a && b) {return false;} else {return true;}}},
+    {name: "not "   , evaluate: function (a){if(!a) {return true;} else {return false;}}},
     
 ];
 
