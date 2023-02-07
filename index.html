@@ -22,10 +22,18 @@ let feedbackDiv = null;
 let statsDiv = null;
 let numCorrectDiv = null;
 let numIncorrectDiv = null;
+let speedDiv = null;
+let trainingStats = null;
+let fillRate = 0.2;
+let minSize = 1;
+let maxSize = 1;
 
-let trainingStats = {
+let trainingStatsInit = {
     numCorrect: 0,
-    numIncorrect: 0
+    numIncorrect: 0,
+    lastSpeed: null,
+    answerHistory: [],
+    speedHistory: []
 };
 
 let currentQuestion = {
@@ -39,13 +47,13 @@ let currentAnswer = {
 
 let logicSymbols = [
     {name: " and "  , evaluate: function (a,b){if(a && b) {return true;} else {return false;}}},
-    {name: " or "   , evaluate: function (a,b){if(a || b) {return true;} else {return false;}}},
-    {name: " xor "  , evaluate: function (a,b){if((!a && b) || (a && !b)) {return true;} else {return false;}}},
-    {name: " nor "  , evaluate: function (a,b){if(!a && !b) {return true;} else {return false;}}},
-    {name: " imply ", evaluate: function (a,b){if(a && !b) {return false;} else {return true;}}},
-    {name: " xnor " , evaluate: function (a,b){if((a && b) || (!a && !b)) {return true;} else {return false;}}},
-    {name: " nand " , evaluate: function (a,b){if(a && b) {return false;} else {return true;}}},
-    {name: "not "   , evaluate: function (a){if(!a) {return true;} else {return false;}}},
+    //{name: " or "   , evaluate: function (a,b){if(a || b) {return true;} else {return false;}}},
+    //{name: " xor "  , evaluate: function (a,b){if((!a && b) || (a && !b)) {return true;} else {return false;}}},
+    //{name: " nor "  , evaluate: function (a,b){if(!a && !b) {return true;} else {return false;}}},
+    //{name: " imply ", evaluate: function (a,b){if(a && !b) {return false;} else {return true;}}},
+    //{name: " xnor " , evaluate: function (a,b){if((a && b) || (!a && !b)) {return true;} else {return false;}}},
+    //{name: " nand " , evaluate: function (a,b){if(a && b) {return false;} else {return true;}}},
+    //{name: "not "   , evaluate: function (a){if(!a) {return true;} else {return false;}}},
     
 ];
 
@@ -55,18 +63,26 @@ let trueFalseSymbols = [
 ]
 
 class logicNode {
-    constructor(){
+    constructor(depth){
         this.left = null;
         this.right = null;
         this.symbol = null;
         this.truth = null;
+        this.depth = depth;
+    }
+}
+
+class answerNode {
+    constructor(correct, time){
+        this.correct = correct;
+        this.time = time;
     }
 }
 
 
 
 function fillLogicTreePiece(o){
-    if(randBool(.2)){
+    if((randBool(fillRate) || o.depth < minSize) && o.depth < maxSize){
         o.symbol = randItem(logicSymbols);
         fillLeaves(o);
     }
@@ -79,12 +95,12 @@ function fillLeaves(o){
     if(o.symbol.name == "true") return;
     else if(o.symbol.name == "false") return;
     else if(o.symbol.name == "not "){
-        o.right = new logicNode();
+        o.right = new logicNode(o.depth+1);
         fillLogicTreePiece(o.right);
     }
     else {
-        o.left = new logicNode();
-        o.right = new logicNode();
+        o.left = new logicNode(o.depth+1);
+        o.right = new logicNode(o.depth+1);
         fillLogicTreePiece(o.left);
         fillLogicTreePiece(o.right);
     }
@@ -93,7 +109,7 @@ function fillLeaves(o){
 function fillLogicTree(){
     let iterations = Math.floor(Math.random()*10);
 
-    let tree = new logicNode();
+    let tree = new logicNode(0);
     tree.symbol = randItem(logicSymbols);
     
     fillLeaves(tree);
@@ -154,11 +170,15 @@ function startUp(){
     statsParent = prepareDiv();
     feedbackDiv = prepareDiv(statsParent);
     statsDiv = prepareDiv(statsParent);
+    styleBoardParent(boardParent);
     styleBoardParent(statsParent);
     styleStatsParent(statsParent);
 
     numCorrectDiv = prepareDiv(statsParent);
     numIncorrectDiv = prepareDiv(statsParent);
+    speedDiv = prepareDiv(statsParent);
+
+    initEventListeners();
 }
 
 
@@ -265,30 +285,74 @@ function clearAnswerInput(){
     }
 }
 
+function asc (arr){ 
+    let copy = [...arr];
+    return copy.sort((a, b) => a - b);
+}
+
+
+function quantile (arr, q) {
+    const sorted = asc(arr);
+    const pos = (sorted.length - 1) * q;
+    const base = Math.floor(pos);
+    const rest = pos - base;
+    if (sorted[base + 1] !== undefined) {
+        return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+    } else {
+        return sorted[base];
+    }
+};
+
+function average (arr) {
+    let total = 0;
+    for(let i = 0; i < arr.length; i++){
+        total += arr[i];
+    }
+    return total / arr.length;
+}
+
+
+function updateSpeed(){
+    if(trainingStats.lastSpeed != null){
+        trainingStats.speedHistory.push(performance.now() - trainingStats.lastSpeed);
+        speedDiv.innerHTML  = `speed: average: ${average(trainingStats.speedHistory).toFixed(0)}ms, `;
+        speedDiv.innerHTML += `5pct: ${quantile(trainingStats.speedHistory,.05).toFixed(0)}ms, `;
+        speedDiv.innerHTML += `25pct: ${quantile(trainingStats.speedHistory,.25).toFixed(0)}ms, `;
+        speedDiv.innerHTML += `50pct: ${quantile(trainingStats.speedHistory,.5).toFixed(0)}ms, `;
+        speedDiv.innerHTML += `95pct: ${quantile(trainingStats.speedHistory,.95).toFixed(0)}ms `;
+        let custom = quantile(trainingStats.speedHistory,.05) + quantile(trainingStats.speedHistory,.5) + quantile(trainingStats.speedHistory,.95);
+        custom /= 3.0;
+        speedDiv.innerHTML += `custom: ${custom.toFixed(0)}ms `;
+    }
+    trainingStats.lastSpeed = performance.now();
+}
+
 function updateScore(s){
     if(s == "correct"){
         trainingStats.numCorrect++;
-        
+        trainingStats.answerHistory.push(new answerNode(true, performance.now()));
+        updateSpeed();
     }
     if(s == "incorrect") {
         trainingStats.numIncorrect++;
+        trainingStats.answerHistory.push(new answerNode(false, performance.now()));
     }
-    numCorrectDiv.innerHTML = "correct: " + traininStats.numCorrect;
-    numIncorrectDiv.innerHTML = "incorrect: " + traininStats.numIncorrect;
+    numCorrectDiv.innerHTML = `correct: ${trainingStats.numCorrect}`;
+    numIncorrectDiv.innerHTML = `incorrect: ${trainingStats.numIncorrect}`;
 }
 
 function feedbackCorrect(){
-    feedbackDiv.innerHTML += "yes it is correct!";
+    feedbackDiv.innerHTML += `yes it is correct!`;
     updateScore("correct");
 }
 
 function feedbackIncorrect(){
-    feedbackDiv.innerHTML += "correct answer was " + currentQuestion.answer;
+    feedbackDiv.innerHTML += `correct answer was ${currentQuestion.answer}`;
     updateScore("incorrect");
 }
 
 function feedbackFirstQuestion(){
-    feedbackDiv.innerHTML += "here's your first question!";
+    feedbackDiv.innerHTML += `here's your first question!`;
 }
 
 function handleAnswer() {
@@ -315,31 +379,39 @@ function nextQuestion() {
     displayQuestion();
 }
 
-startButton.onclick = () => {
-    nextQuestion();
-    startButton.style.display = "none";
-    boardParent.style.display = "inline-block";
-    trueButton.style.display = "inline-block";
-    falseButton.style.display = "inline-block";
+function resetTrainingStats() {
+    trainingStats = JSON.parse(JSON.stringify(trainingStatsInit));
 }
 
-answerDiv.addEventListener("keypress", (e)=> {
-    if(e.key == "Enter") {
+function initEventListeners() {
+    startButton.onclick = () => {
+        resetTrainingStats();
         nextQuestion();
+        startButton.style.display = "none";
+        boardParent.style.display = "inline-block";
+        trueButton.style.display = "inline-block";
+        falseButton.style.display = "inline-block";
+        statsParent.style.display = "inline-block";
     }
-});
 
-trueButton.addEventListener("click", () => {
-    currentAnswer.answer = true;
-    nextQuestion();
-    currentAnswer.answer = null;
-})
+    answerDiv.addEventListener("keypress", (e)=> {
+        if(e.key == "Enter") {
+            nextQuestion();
+        }
+    });
 
-falseButton.addEventListener("click", () => {
-    currentAnswer.answer = false;
-    nextQuestion();
-    currentAnswer.answer = null;
-})
+    trueButton.addEventListener("click", () => {
+        currentAnswer.answer = true;
+        nextQuestion();
+        currentAnswer.answer = null;
+    })
+
+    falseButton.addEventListener("click", () => {
+        currentAnswer.answer = false;
+        nextQuestion();
+        currentAnswer.answer = null;
+    })
+}
 
 startUp();
 
