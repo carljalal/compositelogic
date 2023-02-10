@@ -27,7 +27,7 @@ let speedDiv = null;
 let trainingStats = null;
 let fillRate = 0.2;
 let minSize = 1;
-let maxSize = 1;
+let maxSize = 2;
 let minInt = -9;
 let maxInt = 9;
 
@@ -168,7 +168,7 @@ function evaluateTree(o){
     let rightText = "";
     if (o.left != null) leftText = o.left.text;
     if (o.right != null) rightText = o.right.text;
-    
+
     if (leftText == "" && rightText == "") o.text = o.symbol.displayName(o.data);
     else o.text = "(" + leftText + o.symbol.displayName(o.data) + rightText + ")";
     return o.truth;
