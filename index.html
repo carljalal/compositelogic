@@ -36,16 +36,17 @@ let trainingStatsInit = {
     numIncorrect: 0,
     lastSpeed: null,
     answerHistory: [],
-    speedHistory: []
+    speedHistory: [],
 };
 
 let currentQuestion = {
     question: null,
-    answer: null
+    answer: null,
+    lastQuestion: null,
 };
 
 let currentAnswer = {
-    answer: null
+    answer: null,
 }
 
 let logicSymbols = [
@@ -381,9 +382,9 @@ function updateSpeed(){
         speedDiv.innerHTML += `25pct: ${quantile(trainingStats.speedHistory,.25).toFixed(0)}ms, `;
         speedDiv.innerHTML += `50pct: ${quantile(trainingStats.speedHistory,.5).toFixed(0)}ms, `;
         speedDiv.innerHTML += `95pct: ${quantile(trainingStats.speedHistory,.95).toFixed(0)}ms `;
-        let custom = quantile(trainingStats.speedHistory,.05) + quantile(trainingStats.speedHistory,.5) + quantile(trainingStats.speedHistory,.95);
-        custom /= 3.0;
-        speedDiv.innerHTML += `custom: ${custom.toFixed(0)}ms `;
+        //let custom = quantile(trainingStats.speedHistory,.05) + quantile(trainingStats.speedHistory,.5) + quantile(trainingStats.speedHistory,.95);
+        //custom /= 3.0;
+        //speedDiv.innerHTML += `custom: ${custom.toFixed(0)}ms `;
     }
     trainingStats.lastSpeed = performance.now();
 }
@@ -408,7 +409,7 @@ function feedbackCorrect(){
 }
 
 function feedbackIncorrect(){
-    feedbackDiv.innerHTML += `correct answer was ${currentQuestion.answer}`;
+    feedbackDiv.innerHTML += `correct answer was ${currentQuestion.answer} for question ${currentQuestion.question}`;
     updateScore("incorrect");
 }
 
