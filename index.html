@@ -28,6 +28,8 @@ let trainingStats = null;
 let fillRate = 0.2;
 let minSize = 1;
 let maxSize = 1;
+let minInt = -9;
+let maxInt = 9;
 
 let trainingStatsInit = {
     numCorrect: 0,
@@ -38,30 +40,43 @@ let trainingStatsInit = {
 };
 
 let currentQuestion = {
-    question:null,
-    answer:null
+    question: null,
+    answer: null
 };
 
 let currentAnswer = {
-    answer:null
+    answer: null
 }
 
 let logicSymbols = [
-    {name: " and "  , evaluate: function (a,b){if(a && b) {return true;} else {return false;}}},
-    {name: " or "   , evaluate: function (a,b){if(a || b) {return true;} else {return false;}}},
-    {name: " xor "  , evaluate: function (a,b){if((!a && b) || (a && !b)) {return true;} else {return false;}}},
-    {name: " nor "  , evaluate: function (a,b){if(!a && !b) {return true;} else {return false;}}},
-    {name: " imply ", evaluate: function (a,b){if(a && !b) {return false;} else {return true;}}},
-    {name: " xnor " , evaluate: function (a,b){if((a && b) || (!a && !b)) {return true;} else {return false;}}},
-    {name: " nand " , evaluate: function (a,b){if(a && b) {return false;} else {return true;}}},
-    {name: "not "   , evaluate: function (a){if(!a) {return true;} else {return false;}}},
+    {name: " and "  , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return randItem(logicSymbols)}, pickBranchRight: function(){return randItem(logicSymbols)}, pickLeafLeft: function(){return randItem(trueFalseSymbols)}, pickLeafRight: function(){return randItem(trueFalseSymbols)}, evaluate: function (a,b,data){if(a && b) {return true;} else {return false;}}},
+    {name: " or "   , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return randItem(logicSymbols)}, pickBranchRight: function(){return randItem(logicSymbols)}, pickLeafLeft: function(){return randItem(trueFalseSymbols)}, pickLeafRight: function(){return randItem(trueFalseSymbols)}, evaluate: function (a,b,data){if(a || b) {return true;} else {return false;}}},
+    {name: " xor "  , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return randItem(logicSymbols)}, pickBranchRight: function(){return randItem(logicSymbols)}, pickLeafLeft: function(){return randItem(trueFalseSymbols)}, pickLeafRight: function(){return randItem(trueFalseSymbols)}, evaluate: function (a,b,data){if((!a && b) || (a && !b)) {return true;} else {return false;}}},
+    {name: " nor "  , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return randItem(logicSymbols)}, pickBranchRight: function(){return randItem(logicSymbols)}, pickLeafLeft: function(){return randItem(trueFalseSymbols)}, pickLeafRight: function(){return randItem(trueFalseSymbols)}, evaluate: function (a,b,data){if(!a && !b) {return true;} else {return false;}}},
+    {name: " imply ", displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return randItem(logicSymbols)}, pickBranchRight: function(){return randItem(logicSymbols)}, pickLeafLeft: function(){return randItem(trueFalseSymbols)}, pickLeafRight: function(){return randItem(trueFalseSymbols)}, evaluate: function (a,b,data){if(a && !b) {return false;} else {return true;}}},
+    {name: " xnor " , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return randItem(logicSymbols)}, pickBranchRight: function(){return randItem(logicSymbols)}, pickLeafLeft: function(){return randItem(trueFalseSymbols)}, pickLeafRight: function(){return randItem(trueFalseSymbols)}, evaluate: function (a,b,data){if((a && b) || (!a && !b)) {return true;} else {return false;}}},
+    {name: " nand " , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return randItem(logicSymbols)}, pickBranchRight: function(){return randItem(logicSymbols)}, pickLeafLeft: function(){return randItem(trueFalseSymbols)}, pickLeafRight: function(){return randItem(trueFalseSymbols)}, evaluate: function (a,b,data){if(a && b) {return false;} else {return true;}}},
     
+    {name: "not "   , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return null}, pickBranchRight: function(){return randItem(logicSymbols)}, pickLeafLeft: function(){return null}, pickLeafRight: function(){return randItem(trueFalseSymbols)}, evaluate: function (a,b,data){if(!a) {return true;} else {return false;}}},
+
+    {name: " > "    , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return randItem(mathSymbols)}, pickBranchRight: function(){return randItem(mathSymbols)}, pickLeafLeft: function(){return randItem(numberSymbols)}, pickLeafRight: function(){return randItem(numberSymbols)}, evaluate: function (a,b,data){if(a >  b) {return true;} else {return false;}}},
+    {name: " < "    , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return randItem(mathSymbols)}, pickBranchRight: function(){return randItem(mathSymbols)}, pickLeafLeft: function(){return randItem(numberSymbols)}, pickLeafRight: function(){return randItem(numberSymbols)}, evaluate: function (a,b,data){if(a <  b) {return true;} else {return false;}}},
+    {name: " = "    , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return randItem(mathSymbols)}, pickBranchRight: function(){return randItem(mathSymbols)}, pickLeafLeft: function(){return randItem(numberSymbols)}, pickLeafRight: function(){return randItem(numberSymbols)}, evaluate: function (a,b,data){if(a == b) {return true;} else {return false;}}},
 ];
 
 let trueFalseSymbols = [
-    {name: "true"   , evaluate: function (){return true;}},
-    {name: "false"  , evaluate: function (){return false;}}
+    {name: "true"   , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return null}, pickBranchRight: function(){return null}, pickLeafLeft: function(){return null}, pickLeafRight: function(){return null}, evaluate: function (a,b,data){return true;}},
+    {name: "false"  , displayName: function(data){return this.name;}, setData: function(){return null;}, pickBranchLeft: function(){return null}, pickBranchRight: function(){return null}, pickLeafLeft: function(){return null}, pickLeafRight: function(){return null}, evaluate: function (a,b,data){return false;}},
+];
+
+let numberSymbols = [
+    {name: "num"  , displayName: function(data){return data;}, setData: function(){return randInt(minInt,maxInt);}, pickBranchLeft: function(){return null}, pickBranchRight: function(){return null}, pickLeafLeft: function(){return null}, pickLeafRight: function(){return null}, evaluate: function (a,b,data){return data;}},
 ]
+
+let mathSymbols = [
+    {name: " + "  , displayName: function(data){return this.name;}, setData: function(){return randInt(minInt,maxInt);}, pickBranchLeft: function(){return randItem(mathSymbols)}, pickBranchRight: function(){return randItem(mathSymbols)}, pickLeafLeft: function(){return randItem(numberSymbols)}, pickLeafRight: function(){return randItem(numberSymbols)}, evaluate: function (a,b,data){return a + b;}},
+    {name: " - "  , displayName: function(data){return this.name;}, setData: function(){return randInt(minInt,maxInt);}, pickBranchLeft: function(){return randItem(mathSymbols)}, pickBranchRight: function(){return randItem(mathSymbols)}, pickLeafLeft: function(){return randItem(numberSymbols)}, pickLeafRight: function(){return randItem(numberSymbols)}, evaluate: function (a,b,data){return a - b;}},
+];
 
 class logicNode {
     constructor(depth){
@@ -69,6 +84,8 @@ class logicNode {
         this.right = null;
         this.symbol = null;
         this.truth = null;
+        this.data = null;
+        this.displayName = null;
         this.depth = depth;
     }
 }
@@ -80,31 +97,52 @@ class answerNode {
     }
 }
 
+function randInt(min, max){
+    return min + Math.floor(Math.random() * (max-min+1));
+}
 
 
-function fillLogicTreePiece(o){
+function pickLogicSymbolLeft(o){
     if((randBool(fillRate) || o.depth < minSize) && o.depth < maxSize){
-        o.symbol = randItem(logicSymbols);
-        fillLeaves(o);
+        return o.symbol.pickBranchLeft();
     }
     else{
-        o.symbol = randItem(trueFalseSymbols);
+        return o.symbol.pickLeafLeft();
     }
 }
 
+function pickLogicSymbolRight(o){
+    if((randBool(fillRate) || o.depth < minSize) && o.depth < maxSize){
+        return o.symbol.pickBranchRight();
+    }
+    else{
+        return o.symbol.pickLeafRight();
+    }
+}
+
+function nullifySymbol(o){
+    if(o.symbol == null) o = null;
+}
+
 function fillLeaves(o){
-    if(o.symbol.name == "true") return;
-    else if(o.symbol.name == "false") return;
-    else if(o.symbol.name == "not "){
-        o.right = new logicNode(o.depth+1);
-        fillLogicTreePiece(o.right);
-    }
-    else {
-        o.left = new logicNode(o.depth+1);
-        o.right = new logicNode(o.depth+1);
-        fillLogicTreePiece(o.left);
-        fillLogicTreePiece(o.right);
-    }
+    if (o == null) return;
+
+    o.left = new logicNode(o.depth+1);
+    o.right = new logicNode(o.depth+1);
+
+    o.left.symbol = pickLogicSymbolLeft(o);
+    o.right.symbol = pickLogicSymbolRight(o);
+    
+
+    if(o.left.symbol == null) o.left = null;
+    else o.left.data = o.left.symbol.setData();
+
+    if(o.right.symbol == null) o.right = null;
+    else o.right.data = o.right.symbol.setData();
+
+    fillLeaves(o.left);
+    fillLeaves(o.right);
+    
 }
 
 function fillLogicTree(){
@@ -119,8 +157,26 @@ function fillLogicTree(){
 }
 
 
-
 function evaluateTree(o){
+    let l = null;
+    let r = null;
+    if(o.left  != null) l = evaluateTree(o.left);
+    if(o.right != null) r = evaluateTree(o.right);
+    o.truth = o.symbol.evaluate(l, r, o.data);
+    o.text  = o.symbol.displayName(o.data);
+    let leftText = "";
+    let rightText = "";
+    if (o.left != null) leftText = o.left.text;
+    if (o.right != null) rightText = o.right.text;
+    
+    if (leftText == "" && rightText == "") o.text = o.symbol.displayName(o.data);
+    else o.text = "(" + leftText + o.symbol.displayName(o.data) + rightText + ")";
+    return o.truth;
+}
+
+
+
+function evaluateTreeOld(o){
     let l = null;
     let r = null;
     if(o.symbol.name == "true"){
