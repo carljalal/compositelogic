@@ -77,6 +77,10 @@ let numberSymbols = [
 let mathSymbols = [
     {name: " + "  , displayName: function(data){return this.name;}, setData: function(){return randInt(minInt,maxInt);}, pickBranchLeft: function(){return randItem(mathSymbols)}, pickBranchRight: function(){return randItem(mathSymbols)}, pickLeafLeft: function(){return randItem(numberSymbols)}, pickLeafRight: function(){return randItem(numberSymbols)}, evaluate: function (a,b,data){return a + b;}},
     {name: " - "  , displayName: function(data){return this.name;}, setData: function(){return randInt(minInt,maxInt);}, pickBranchLeft: function(){return randItem(mathSymbols)}, pickBranchRight: function(){return randItem(mathSymbols)}, pickLeafLeft: function(){return randItem(numberSymbols)}, pickLeafRight: function(){return randItem(numberSymbols)}, evaluate: function (a,b,data){return a - b;}},
+    {name: " * "  , displayName: function(data){return this.name;}, setData: function(){return randInt(minInt,maxInt);}, pickBranchLeft: function(){return randItem(mathSymbols)}, pickBranchRight: function(){return randItem(mathSymbols)}, pickLeafLeft: function(){return randItem(numberSymbols)}, pickLeafRight: function(){return randItem(numberSymbols)}, evaluate: function (a,b,data){return a * b;}},
+    {name: " / "  , displayName: function(data){return this.name;}, setData: function(){return randInt(minInt,maxInt);}, pickBranchLeft: function(){return randItem(mathSymbols)}, pickBranchRight: function(){return randItem(mathSymbols)}, pickLeafLeft: function(){return randItem(numberSymbols)}, pickLeafRight: function(){return randItem(numberSymbols)}, evaluate: function (a,b,data){return Math.trunc(a / b);}},
+    {name: " % "  , displayName: function(data){return this.name;}, setData: function(){return randInt(minInt,maxInt);}, pickBranchLeft: function(){return randItem(mathSymbols)}, pickBranchRight: function(){return randItem(mathSymbols)}, pickLeafLeft: function(){return randItem(numberSymbols)}, pickLeafRight: function(){return randItem(numberSymbols)}, evaluate: function (a,b,data){return a % b;}},
+    
 ];
 
 class logicNode {
