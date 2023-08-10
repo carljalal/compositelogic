@@ -25,6 +25,11 @@ let numCorrectDiv = null;
 let numIncorrectDiv = null;
 let speedDiv = null;
 let trainingStats = null;
+let parametersParent = null;
+let minInput = null;
+let maxInput = null;
+
+
 let fillRate = 0.2;
 let minSize = 1;
 let maxSize = 2;
@@ -208,6 +213,17 @@ function evaluateTreeOld(o){
 
 
 function startUp(){
+    parametersParent = prepareDiv()
+    //minInput = prepareInput()
+    minInput = document.createElement("input")
+    parametersParent.append(minInput)
+    minInput.placeholder = "min"
+
+    maxInput = document.createElement("input")
+    parametersParent.append(maxInput)
+    maxInput.placeholder = "max"
+    styleParametersParent(parametersParent)
+
     boardParent = prepareDiv();
 
     trainingTitle = "logic training";
@@ -250,6 +266,12 @@ function styleBoardParent(o) {
     o.style.padding = "5px";
 }
 
+function styleParametersParent(o) {
+    o.style.display = "inline-block";
+    o.style.border = "2px solid black";
+    o.style.padding = "5px";
+}
+
 function styleStatsParent(o) {
     
 }
@@ -260,6 +282,12 @@ function appendBreak(parent = document.body){
 
 function prepareDiv(parent = document.body){
     let o = document.createElement("div")
+    parent.append(o);
+    return o;
+}
+
+function prepareInput(parent = document.body){
+    let o = document.createElement("input")
     parent.append(o);
     return o;
 }
@@ -451,9 +479,12 @@ function resetTrainingStats() {
 
 function initEventListeners() {
     startButton.onclick = () => {
+        minSize = minInput.value
+        maxSize = maxInput.value
         resetTrainingStats();
         nextQuestion();
         startButton.style.display = "none";
+        parametersParent.style.display = "none"
         boardParent.style.display = "inline-block";
         trueButton.style.display = "inline-block";
         falseButton.style.display = "inline-block";
