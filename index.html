@@ -214,7 +214,6 @@ function evaluateTreeOld(o){
 
 function startUp(){
     parametersParent = prepareDiv()
-    //minInput = prepareInput()
     minInput = document.createElement("input")
     parametersParent.append(minInput)
     minInput.placeholder = "min"
@@ -479,8 +478,10 @@ function resetTrainingStats() {
 
 function initEventListeners() {
     startButton.onclick = () => {
-        minSize = minInput.value
-        maxSize = maxInput.value
+        if(minInput.value.trim() == "") minInput.value = 0
+        if(maxInput.value.trim() == "") maxInput.value = 0
+        minSize = Math.max(0, minInput.value)
+        maxSize = Math.max(0, maxInput.value)
         resetTrainingStats();
         nextQuestion();
         startButton.style.display = "none";
